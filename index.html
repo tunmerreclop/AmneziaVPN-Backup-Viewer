@@ -3,499 +3,1061 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AmneziaVPN Backup Viewer</title>
+<title>AmneziaVPN Backup Viewer v1.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+(function(){
+  var s = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', s);
+})();
+</script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #ffffff;
-    --bg-secondary: #f5f5f4;
-    --bg-tertiary: #eeede9;
-    --bg-info: #e6f1fb;
-    --bg-success: #eaf3de;
-    --bg-danger: #fcebeb;
-    --text: #1a1a18;
-    --text-secondary: #5f5e5a;
-    --text-info: #185fa5;
-    --text-success: #3b6d11;
-    --text-danger: #a32d2d;
-    --border: rgba(0,0,0,0.12);
-    --border-secondary: rgba(0,0,0,0.22);
-    --border-info: rgba(24,95,165,0.35);
-    --border-success: rgba(59,109,17,0.35);
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    --font-sans: system-ui, -apple-system, sans-serif;
-    --font-mono: ui-monospace, 'Cascadia Code', 'Fira Mono', monospace;
-  }
+:root {
+  --bg:        #ffffff;
+  --bg-2:      #f2f3f5;
+  --bg-3:      #e3e5e8;
+  --bg-card:   #ffffff;
+  --acc:       #5865f2;
+  --acc-h:     #4752c4;
+  --acc-bg:    rgba(88,101,242,.11);
+  --acc-bd:    rgba(88,101,242,.38);
+  --link:      #0058cc;
+  --link-h:    #003a8c;
+  --ok:        #248046;
+  --ok-bg:     rgba(36,128,70,.11);
+  --ok-bd:     rgba(36,128,70,.38);
+  --err:       #da373c;
+  --err-bg:    rgba(218,55,60,.1);
+  --err-bd:    rgba(218,55,60,.38);
+  --warn:      #b76e00;
+  --warn-bg:   rgba(183,110,0,.1);
+  --warn-bd:   rgba(183,110,0,.35);
+  --text:      #2e3338;
+  --text-2:    #4e5058;
+  --text-3:    #80848e;
+  --text-code: #c82142;
+  --bg-code:   rgba(0,0,0,.05);
+  --bd:        rgba(0,0,0,.08);
+  --bd-2:      rgba(0,0,0,.15);
+  --r-sm:      4px;
+  --r-md:      8px;
+  --r-lg:      12px;
+  --font:      'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --mono:      'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+}
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1e1e1c;
-      --bg-secondary: #2a2a28;
-      --bg-tertiary: #333330;
-      --bg-info: #0c3055;
-      --bg-success: #1a3308;
-      --bg-danger: #3d1010;
-      --text: #e8e6de;
-      --text-secondary: #9a9890;
-      --text-info: #85b7eb;
-      --text-success: #97c459;
-      --text-danger: #f09595;
-      --border: rgba(255,255,255,0.1);
-      --border-secondary: rgba(255,255,255,0.18);
-      --border-info: rgba(133,183,235,0.3);
-      --border-success: rgba(151,196,89,0.3);
-    }
-  }
+[data-theme="dark"] {
+  --bg:        #313338;
+  --bg-2:      #2b2d31;
+  --bg-3:      #1e1f22;
+  --bg-card:   #2b2d31;
+  --acc:       #5865f2;
+  --acc-h:     #7289da;
+  --acc-bg:    rgba(88,101,242,.2);
+  --acc-bd:    rgba(88,101,242,.5);
+  --link:      #58a6ff;
+  --link-h:    #79b8ff;
+  --ok:        #3ba55c;
+  --ok-bg:     rgba(59,165,92,.18);
+  --ok-bd:     rgba(59,165,92,.45);
+  --err:       #f04747;
+  --err-bg:    rgba(240,71,71,.18);
+  --err-bd:    rgba(240,71,71,.45);
+  --warn:      #faa81a;
+  --warn-bg:   rgba(250,168,26,.15);
+  --warn-bd:   rgba(250,168,26,.4);
+  --text:      #dbdee1;
+  --text-2:    #b5bac1;
+  --text-3:    #87898c;
+  --text-code: #ff7b72;
+  --bg-code:   rgba(255,255,255,.08);
+  --bd:        rgba(255,255,255,.06);
+  --bd-2:      rgba(255,255,255,.12);
+}
 
-  body {
-    font-family: var(--font-sans);
-    background: var(--bg-tertiary);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 2rem 1rem;
-  }
+body { font-family: var(--font); background: var(--bg-3); color: var(--text); min-height: 100vh; transition: background .2s, color .2s; }
 
-  .container {
-    max-width: 720px;
-    margin: 0 auto;
-  }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 2rem 1rem 4rem; }
 
-  h1 {
-    font-size: 20px;
-    font-weight: 500;
-    margin-bottom: .25rem;
-  }
+.top-layout {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  align-items: start;
+}
+@media(max-width: 840px) {
+  .top-layout { grid-template-columns: 1fr; gap: 1.5rem; }
+}
 
-  .subtitle {
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-bottom: 1.5rem;
-  }
+.hrow { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+h1 { font-size: 20px; font-weight: 700; letter-spacing: -.01em; margin-bottom: .2rem; }
+.sub { font-size: 13px; color: var(--text-3); line-height: 1.4; }
 
-  .drop-zone {
-    border: 1.5px dashed var(--border-secondary);
-    border-radius: var(--radius-lg);
-    padding: 2.5rem 1rem;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color .15s, background .15s;
-    background: var(--bg-secondary);
-  }
+.hbtns { display: flex; gap: 6px; align-items: center; flex-shrink: 0; padding-top: 2px; }
 
-  .drop-zone:hover,
-  .drop-zone.dragover {
-    border-color: var(--border-info);
-    background: var(--bg-info);
-  }
+.ibtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: var(--r-md); border: 1px solid var(--bd-2);
+  background: transparent; color: var(--text-3); cursor: pointer;
+  transition: background .1s, color .1s, border-color .1s; text-decoration: none;
+}
+.ibtn:hover { background: var(--bg-2); color: var(--text); border-color: var(--acc); }
+.ibtn svg { width: 16px; height: 16px; fill: currentColor; }
+.ibtn .si { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-  .drop-zone input { display: none; }
+.drop {
+  border: 1.5px dashed var(--bd-2); border-radius: var(--r-lg);
+  padding: 2.5rem 1rem; text-align: center; cursor: pointer;
+  transition: border-color .15s, background .15s; background: var(--bg-2);
+}
+.drop:hover, .drop.over { border-color: var(--acc); background: var(--acc-bg); }
+.drop input { display: none; }
+.drop-icon { font-size: 32px; margin-bottom: .75rem; }
+.drop-label { font-size: 15px; font-weight: 500; margin-bottom: .25rem; }
+.drop-sub { font-size: 13px; color: var(--text-3); }
 
-  .drop-icon { font-size: 32px; margin-bottom: .75rem; }
+.err-box {
+  background: var(--err-bg); border: 1px solid var(--err-bd);
+  border-radius: var(--r-md); padding: .7rem 1rem; font-size: 13px;
+  color: var(--err); margin-top: 1rem; display: none;
+}
 
-  .drop-label {
-    font-size: 15px;
-    color: var(--text);
-    margin-bottom: .25rem;
-  }
+.files-bar-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: .6rem; }
 
-  .drop-sub {
-    font-size: 13px;
-    color: var(--text-secondary);
-  }
+.files-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+}
 
-  .error-box {
-    background: var(--bg-danger);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: .75rem 1rem;
-    font-size: 13px;
-    color: var(--text-danger);
-    margin-top: 1rem;
-    display: none;
-  }
+.file-chip {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  background: var(--bg-card); border: 1px solid var(--bd-2);
+  border-radius: var(--r-md); padding: .65rem .75rem;
+  cursor: pointer; transition: border-color .1s, background .1s;
+  text-align: left; width: 100%;
+}
+.file-chip:hover { border-color: var(--acc); background: var(--acc-bg); }
+.fc-name { font-size: 12px; font-family: var(--mono); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-weight: 500; }
+.fc-meta { font-size: 11px; color: var(--text-3); }
 
-  .results { margin-top: 1.5rem; display: none; }
+.results { display: none; }
 
-  .section-label {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    margin-bottom: .75rem;
-  }
+.res-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px; }
 
-  .server-card {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-  }
+.slabel { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .07em; }
 
-  .server-name {
-    font-size: 17px;
-    font-weight: 500;
-    margin-bottom: .5rem;
-  }
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 1.25rem; align-items: start;
+}
 
-  .tag-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 1rem;
-  }
+.server-card {
+  background: var(--bg-card); border: 1px solid var(--bd);
+  border-radius: var(--r-lg); padding: 1.1rem 1.1rem .9rem;
+  transition: border-color .15s;
+  display: flex; flex-direction: column;
+  height: 470px;
+}
+.server-card:hover { border-color: var(--bd-2); }
 
-  .tag {
-    font-size: 12px;
-    padding: 3px 10px;
-    border-radius: var(--radius-md);
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    border: 0.5px solid var(--border);
-  }
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; margin-bottom: .45rem; flex-shrink: 0; }
+.srv-name { font-size: 15px; font-weight: 600; line-height: 1.3; word-break: break-word; }
+.src-badge {
+  font-size: 10px; padding: 2px 7px; border-radius: 100px;
+  background: var(--bg-3); border: 1px solid var(--bd-2);
+  color: var(--text-3); white-space: nowrap; flex-shrink: 0;
+}
 
-  .tag.info  { background: var(--bg-info);    color: var(--text-info);    border-color: var(--border-info); }
-  .tag.ok    { background: var(--bg-success); color: var(--text-success); border-color: var(--border-success); }
+.tag-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: .7rem; flex-shrink: 0; }
+.tag { font-size: 11px; padding: 2px 8px; border-radius: 100px; background: var(--bg-2); color: var(--text-2); border: 1px solid var(--bd); }
+.tag.a { background: var(--acc-bg); color: var(--acc); border-color: var(--acc-bd); }
 
-  .info-grid {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 5px 16px;
-    font-size: 13px;
-    margin-bottom: 1rem;
-  }
+.card-scroll-area {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  margin: 0 -0.5rem; padding: 0 0.5rem;
+}
+.card-scroll-area::-webkit-scrollbar { width: 4px; }
+.card-scroll-area::-webkit-scrollbar-track { background: transparent; }
+.card-scroll-area::-webkit-scrollbar-thumb { background: var(--bd-2); border-radius: 4px; }
+.card-scroll-area::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 
-  .info-grid .k { color: var(--text-secondary); white-space: nowrap; }
-  .info-grid .v { color: var(--text); word-break: break-all; }
-  .info-grid .v.ok { color: var(--text-success); }
+.igrid { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 12px; margin-bottom: .7rem; }
+.igrid .k { color: var(--text-3); white-space: nowrap; padding-top: 1px; }
+.igrid .v { color: var(--text); word-break: break-all; font-family: var(--mono); font-size: 11px; }
+.igrid .v.ok { color: var(--ok); font-weight: 500; font-family: var(--font); font-size: 12px; }
 
-  .divider {
-    height: 0.5px;
-    background: var(--border);
-    margin: 1rem 0;
-  }
+.div { height: 1px; background: var(--bd); margin: .7rem 0; }
 
-  .proxy-box {
-    background: var(--bg-secondary);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: .75rem;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text);
-    word-break: break-all;
-    line-height: 1.7;
-    margin-bottom: .75rem;
-    cursor: text;
-    user-select: all;
-  }
+.pt-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: .7rem; border-bottom: 1px solid var(--bd); padding-bottom: .55rem; }
+.pt-tab {
+  font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 100px;
+  border: 1px solid var(--bd-2); background: transparent; color: var(--text-3);
+  cursor: pointer; transition: all .1s;
+}
+.pt-tab:hover { color: var(--text); border-color: var(--acc-bd); }
+.pt-tab.act { background: var(--acc); color: #fff; border-color: var(--acc); }
+.pt-panel { display: none; }
+.pt-panel.act { display: block; }
 
-  .vpnkey-box {
-    background: var(--bg-secondary);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: .6rem .75rem;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text-secondary);
-    word-break: break-all;
-    line-height: 1.6;
-    margin-bottom: .75rem;
-    cursor: text;
-    user-select: all;
-  }
+.srv-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: .7rem; }
+.srv-tab {
+  font-size: 11.5px; padding: 4px 10px; border-radius: 100px;
+  border: 1px solid var(--bd-2); background: transparent; color: var(--text-2); cursor: pointer; transition: all .1s;
+}
+.srv-tab:hover { color: var(--text); border-color: var(--bd); }
+.srv-tab.act { background: var(--bg-2); color: var(--text); border-color: var(--bd-2); font-weight: 500; }
+.srv-panel { display: none; }
+.srv-panel.act { display: block; }
 
-  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.act-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: .6rem; }
 
-  .btn {
-    font-family: var(--font-sans);
-    font-size: 13px;
-    padding: 6px 14px;
-    border-radius: var(--radius-md);
-    border: 0.5px solid var(--border-secondary);
-    background: transparent;
-    color: var(--text);
-    cursor: pointer;
-    transition: background .1s, color .1s, border-color .1s;
-  }
+.btn {
+  font-family: var(--font); font-size: 12px; font-weight: 500;
+  padding: 5px 12px; border-radius: var(--r-md); border: 1px solid var(--bd-2);
+  background: transparent; color: var(--text); cursor: pointer; transition: all .1s;
+}
+.btn:hover { background: var(--bg-2); }
+.btn:active { transform: scale(.97); }
+.btn.pr { background: var(--acc); color: #fff; border-color: var(--acc); }
+.btn.pr:hover { background: var(--acc-h); border-color: var(--acc-h); }
 
-  .btn:hover { background: var(--bg-secondary); }
-  .btn:active { transform: scale(.98); }
+.eye-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: var(--r-sm);
+  border: 1px solid var(--bd-2); background: transparent; color: var(--text-3);
+  cursor: pointer; transition: all .1s; flex-shrink: 0;
+}
+.eye-btn:hover { background: var(--bg-2); color: var(--text); }
+.eye-btn svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-  .btn.copied {
-    color: var(--text-success);
-    border-color: var(--border-success);
-  }
+.sub-footer-wrap { flex-shrink: 0; margin-top: auto; }
+.kv-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg-2); border: 1px solid var(--bd);
+  border-radius: var(--r-md); padding: .35rem .65rem;
+  font-family: var(--mono); font-size: 11px; color: var(--text-3); max-width: 100%; overflow: hidden;
+}
+.kv-chip-t { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  .countries-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: .5rem;
-  }
+.sublabel { font-size: 10px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .07em; margin: .55rem 0 .4rem; }
 
-  .country {
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: var(--radius-md);
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-    border: 0.5px solid var(--border);
-  }
+.warn-block { font-size: 12px; background: var(--warn-bg); border: 1px solid var(--warn-bd); color: var(--warn); border-radius: var(--r-md); padding: .5rem .7rem; line-height: 1.5; margin-bottom: .5rem; }
+.info-block { font-size: 12px; background: var(--acc-bg); border: 1px solid var(--acc-bd); color: var(--acc); border-radius: var(--r-md); padding: .5rem .7rem; line-height: 1.5; margin-bottom: .5rem; }
+
+code {
+  font-family: var(--mono); font-size: 11.5px;
+  background: var(--bg-code); color: var(--text-code);
+  padding: 2px 5px; border-radius: 4px; border: 1px solid var(--bd-2);
+}
+
+.blur { filter: blur(4px); cursor: pointer; transition: filter 0.2s, opacity 0.2s; opacity: 0.8; user-select: none; }
+.blur:hover { opacity: 1; }
+.blur.show-pwd { filter: none; user-select: auto; }
+
+.modal-ov {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6);
+  z-index: 200; align-items: flex-start; justify-content: center;
+  padding: 2rem 1rem; overflow-y: auto;
+}
+.modal-ov.open { display: flex; }
+.modal-box {
+  background: var(--bg-card); border: 1px solid var(--bd-2);
+  border-radius: var(--r-lg); width: 100%; max-width: 680px;
+  margin: auto; box-shadow: 0 8px 32px rgba(0,0,0,.25);
+}
+.modal-hd { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--bd); }
+.modal-title { font-size: 15px; font-weight: 600; }
+.modal-close { background: transparent; border: none; font-size: 18px; cursor: pointer; color: var(--text-3); line-height: 1; padding: 0 2px; }
+.modal-close:hover { color: var(--text); }
+.modal-bd { padding: 1.25rem; font-size: 13px; line-height: 1.65; max-height: 78vh; overflow-y: auto; }
+.modal-bd p { margin-bottom: .6rem; }
+.modal-bd p:last-child { margin: 0; }
+.modal-bd ul { padding-left: 1.2rem; margin-bottom: .6rem; }
+.modal-bd li { margin-bottom: .2rem; }
+.modal-bd strong { font-weight: 600; }
+
+.modal-bd a, footer a { color: var(--link); text-decoration: none; }
+.modal-bd a:hover, footer a:hover { color: var(--link-h); text-decoration: underline; }
+
+.cfg-area {
+  width: 100%; background: var(--bg-2); border: 1px solid var(--bd);
+  border-radius: var(--r-md); padding: .65rem .75rem; font-family: var(--mono);
+  font-size: 12px; color: var(--text); resize: vertical; line-height: 1.6; min-height: 160px;
+}
+
+.r-summary { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 13px; padding-bottom: .75rem; border-bottom: 1px solid var(--bd); margin-bottom: 1rem; }
+.r-summary .k { color: var(--text-3); }
+.r-summary .v { color: var(--text); font-weight: 500; }
+
+.r-tabs { display: flex; gap: 4px; margin-bottom: .75rem; }
+.r-tab { font-size: 12px; padding: 4px 14px; border-radius: 100px; border: 1px solid var(--bd-2); background: transparent; color: var(--text-3); cursor: pointer; transition: all .1s; }
+.r-tab.act { background: var(--acc); color: #fff; border-color: var(--acc); }
+.r-panel { display: none; }
+.r-panel.act { display: block; }
+
+.r-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media(max-width: 500px) { .r-cols { grid-template-columns: 1fr; } }
+
+.r-list { width: 100%; background: var(--bg-2); border: 1px solid var(--bd); border-radius: var(--r-md); padding: .5rem .65rem; font-family: var(--mono); font-size: 11px; color: var(--text); resize: none; line-height: 1.6; height: 180px; }
+
+.empty-hint { font-size: 12px; color: var(--text-3); font-style: italic; padding: .35rem 0; }
+
+.toast-wrap { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast {
+  background: var(--bg-card); border: 1px solid var(--bd-2); border-radius: var(--r-md);
+  padding: .55rem 1rem; font-size: 13px; color: var(--text);
+  box-shadow: 0 4px 16px rgba(0,0,0,.22); opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s;
+}
+.toast.ok-t { border-color: var(--ok-bd); color: var(--ok); }
+.toast.err-t { border-color: var(--err-bd); color: var(--err); }
+.toast.show { opacity: 1; transform: none; }
+
+.btt-btn {
+  position: fixed; bottom: 1.5rem; left: 1.5rem; z-index: 100;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--bg-card); border: 1px solid var(--bd-2);
+  color: var(--text-3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  opacity: 0; pointer-events: none; transform: translateY(10px); transition: all .2s;
+}
+.btt-btn svg { width: 22px; height: 22px; fill: currentColor; }
+.btt-btn:hover { background: var(--acc); color: #fff; border-color: var(--acc); }
+.btt-btn.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+footer { text-align: center; font-size: 12px; color: var(--text-3); padding: 2rem 0 1rem; }
 </style>
 </head>
 <body>
-<div class="container">
 
-  <h1>AmneziaVPN Backup Viewer</h1>
-  <p class="subtitle">Извлекает VLESS из бэкапа данных приложения AmneziaVPN.</p>
-  <p class="subtitle">Проверено на AmneziaVPN 4.8.14.5.</p>
+<div class="wrap">
+  <div class="top-layout">
+    <div class="top-left">
+      <div class="hrow">
+        <div>
+          <h1>AmneziaVPN Backup Viewer <span style="font-size:14px;color:var(--text-3);font-weight:500;vertical-align:middle;">v1.1</span></h1>
+          <p class="sub">Извлекает конфигурации протоколов из файла(ов) резервной копии.</p>
+        </div>
+        <div class="hbtns">
+          <button class="ibtn" onclick="toggleTheme()" title="Сменить тему">
+            <svg class="si" id="ti" viewBox="0 0 24 24"></svg>
+          </button>
+          <a href="https://github.com/tunmerreclop/AmneziaVPN-Backup-Viewer" target="_blank" rel="noopener" class="ibtn" title="GitHub">
+            <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          </a>
+          <button class="ibtn" onclick="showInfoModal()" title="О приложении">
+            <svg viewBox="0 0 16 16"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm0 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zm0 2.25a.875.875 0 1 1 0 1.75.875.875 0 0 1 0-1.75zM7.25 6.5h1.5v5h-1.5V6.5z"/></svg>
+          </button>
+        </div>
+      </div>
 
-  <div class="drop-zone" id="dz">
-    <input type="file" id="fi" accept=".backup,application/backup">
-    <div class="drop-icon">🥷</div>
-    <div class="drop-label">Перетащите файл бэкапа или нажмите для выбора</div>
-    <div class="drop-sub">Файл не покидает пределы браузера — всё обрабатывается локально!</div>
+      <div class="drop" id="dz">
+        <input type="file" id="fi" accept=".backup" multiple>
+        <div class="drop-icon">🥷</div>
+        <div class="drop-label">Перетащите .backup файл(ы) или нажмите для выбора</div>
+        <div class="drop-sub">Обработка происходит на 100% локально</div>
+      </div>
+
+      <div class="err-box" id="error"></div>
+    </div>
+
+    <div class="top-right" id="files-bar" style="display:none">
+      <div class="files-bar-hd">
+        <span class="slabel"> — нажмите для просмотра маршрутов</span>
+      </div>
+      <div class="files-grid" id="files-grid"></div>
+    </div>
   </div>
 
-  <div class="error-box" id="error"></div>
   <div class="results" id="results"></div>
-
 </div>
 
+<button class="btt-btn" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Наверх">
+  <svg viewBox="0 0 24 24"><path d="M12 4l-8 8h6v8h4v-8h6z"/></svg>
+</button>
+
+<div class="modal-ov" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <span class="modal-title" id="modal-title"></span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-bd" id="modal-bd"></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
 <script>
-  const dz     = document.getElementById('dz');
-  const fi     = document.getElementById('fi');
-  const errEl  = document.getElementById('error');
-  const resEl  = document.getElementById('results');
+const COMMUNITY_LINKS =[
+  'https://amnezia.org',
+  'СКОРО БОЛЬШЕ БУДЕТ'
+];
 
-  dz.addEventListener('click', () => fi.click());
-  fi.addEventListener('change', () => { if (fi.files[0]) handle(fi.files[0]); });
+const CORD=['amnezia-xray','amnezia-awg2','amnezia-awg','amnezia-wireguard','amnezia-openvpn-cloak','amnezia-openvpn','amnezia-shadowsocks','amnezia-socks5proxy','amnezia-ipsec'];
+const CLABEL={'amnezia-xray':'VLESS','amnezia-awg':'AmneziaWG','amnezia-awg2':'AmneziaWG v2','amnezia-wireguard':'WireGuard','amnezia-openvpn':'OpenVPN','amnezia-openvpn-cloak':'OpenVPN+Cloak','amnezia-shadowsocks':'ShadowSocks','amnezia-socks5proxy':'SOCKS5','amnezia-ipsec':'IKEv2'};
+const RMODES={'0':'Отключён','1':'Весь трафик','2':'Split Tunneling'};
+const AMODES={'0':'Все приложения','1':'Все кроме исключений','2':'Только избранные'};
 
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
-  dz.addEventListener('dragleave', ()  => dz.classList.remove('dragover'));
-  dz.addEventListener('drop', e => {
-    e.preventDefault();
-    dz.classList.remove('dragover');
-    if (e.dataTransfer.files[0]) handle(e.dataTransfer.files[0]);
-  });
+const loadedConfs=[], seenHosts=new Set(), allServers=[];
+let uidC=0;
+function uid(){return 'u'+(++uidC);}
 
-  function handle(file) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      try { parse(JSON.parse(e.target.result)); }
-      catch (ex) { showErr('Ошибка разбора JSON: ' + ex.message); }
+function updateThemeIcon(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.getElementById('ti').innerHTML=dark
+    ?'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
+    :'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+}
+function toggleTheme(){
+  const n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',n);
+  localStorage.setItem('theme',n);
+  updateThemeIcon();
+}
+window.addEventListener('DOMContentLoaded',updateThemeIcon);
+
+const dz=document.getElementById('dz'),fi=document.getElementById('fi');
+const errEl=document.getElementById('error'),resEl=document.getElementById('results');
+
+dz.addEventListener('click',()=>fi.click());
+fi.addEventListener('change',()=>{if(fi.files.length)handleFiles(fi.files);});
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files.length)handleFiles(e.dataTransfer.files);});
+
+function handleFiles(files){
+  let pending=files.length;
+  for(const f of files){
+    const r=new FileReader();
+    r.onload=e=>{
+      try{ingest(JSON.parse(e.target.result),f.name);}
+      catch(ex){showErr('JSON ошибка ('+f.name+'): '+ex.message);}
+      if(--pending===0)render();
     };
-    reader.readAsText(file);
+    r.readAsText(f);
   }
+}
 
-  function showErr(msg) {
-    errEl.textContent = msg;
-    errEl.style.display = 'block';
-    resEl.style.display = 'none';
+function ingest(data,filename){
+  const platform=(data['AppPlatform']||'').toLowerCase();
+  const conf={
+    platform,
+    primaryDns:  data['Conf/primaryDns']  ||'1.1.1.1',
+    secondaryDns:data['Conf/secondaryDns']||'1.0.0.1',
+    routeMode:   data['Conf/routeMode'],
+    appsRouteMode:data['Conf/appsRouteMode'],
+    appsSplit:   data['Conf/appsSplitTunnelingEnabled'],
+    sitesSplit:  data['Conf/sitesSplitTunnelingEnabled'],
+    killSwitch:  data['Conf/killSwitchEnabled'],
+    autoConnect: data['Conf/autoConnect'],
+    useAmneziaDns:data['Conf/useAmneziaDns'],
+    exceptApps:  plo(data['Conf/ExceptApps'], []),
+    forwardApps: plo(data['Conf/ForwardApps'],[]),
+    exceptSites: plo(data['Conf/ExceptSites'],{}),
+    forwardSites:plo(data['Conf/ForwardSites'],{}),
+  };
+  let servers;
+  try{const r=data['Servers/serversList'];servers=typeof r==='string'?JSON.parse(r):(r||[]);}
+  catch(e){servers=[];}
+  
+  let rawCount=0, added=0;
+  for(const srv of servers){
+    if(!hasCont(srv))continue;
+    rawCount++;
+    const k=srvKey(srv);
+    if(seenHosts.has(k))continue;
+    seenHosts.add(k);
+    srv.__conf=conf;
+    srv.__file=filename;
+    allServers.push(srv);
+    added++;
   }
+  loadedConfs.push({filename,conf,platform,rawCount});
+}
 
-  function parse(data) {
-    errEl.style.display = 'none';
+function plo(v,def){if(!v)return def;if(typeof v==='string'){try{return JSON.parse(v);}catch(e){return def;}}return v;}
+function srvKey(srv){return String(srv.hostName||srv.description||srv.name||'').trim();}
+function hasCont(srv){return(srv.containers||[]).some(c=>CORD.includes(c.container));}
 
-    let servers;
-    try {
-      const raw = data['Servers/serversList'];
-      servers = typeof raw === 'string' ? JSON.parse(raw) : raw;
-    } catch(e) {
-      showErr('Не найден или повреждён Servers/serversList');
-      return;
+function render(){
+  if(!allServers.length){showErr('Поддерживаемых серверов не найдено или резервная копия повреждена.');return;}
+  errEl.style.display='none';
+
+  const fbar=document.getElementById('files-bar'),fgrid=document.getElementById('files-grid');
+  fbar.style.display='block';
+  fgrid.innerHTML=loadedConfs.map((fc,i)=>
+    `<button class="file-chip" onclick="showRoutingModal(${i})" title="${esc(fc.filename)}">
+      <div class="fc-name">${esc(fc.filename)}</div>
+      <div class="fc-meta">${fc.rawCount} серв. · ${esc(fc.platform||'?')}</div>
+    </button>`
+  ).join('');
+
+  const groups=groupServers();
+  const multiFile=loadedConfs.length>1;
+  const vlessCount=allServers.filter(s=>(s.containers||[]).some(c=>c.container==='amnezia-xray')).length;
+
+  let html=`<div class="res-hd">
+    <span class="slabel">Уникальных серверов: ${allServers.length}</span>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      ${vlessCount?`<button class="btn pr" onclick="exportAllVless()">Экспорт VLESS (${vlessCount})</button>`:''}
+    </div>
+  </div><div class="cards-grid">`;
+
+  for(const g of groups)
+    html+=g.type==='sub'&&g.srvList.length>1?renderMergedCard(g,multiFile):renderCard(g.srvList[0],multiFile);
+
+  html+='</div>';
+  resEl.innerHTML=html;
+  resEl.style.display='block';
+}
+
+function groupServers(){
+  const out=[],byKey={};
+  for(const srv of allServers){
+    const vk=(srv.api_config||{}).vpn_key;
+    if(vk){
+      if(!byKey[vk]){byKey[vk]={type:'sub',vpnKey:vk,srvList:[]};out.push(byKey[vk]);}
+      byKey[vk].srvList.push(srv);
+    }else{
+      out.push({type:'single',srvList:[srv]});
     }
-
-    if (!Array.isArray(servers) || !servers.length) {
-      showErr('Список серверов пуст');
-      return;
-    }
-
-    const valid = servers.filter(s =>
-      Array.isArray(s.containers) &&
-      s.containers.some(c => c.container === 'amnezia-xray')
-    );
-
-    if (!valid.length) {
-      showErr('Нет серверов с контейнером amnezia-xray (VLESS) в данном бэкапе.');
-      return;
-    }
-
-    let html = '<div class="section-label">Найдено серверов с amnezia-xray: ' + valid.length + '</div>';
-
-    for (const srv of valid) {
-      const xc     = srv.containers.find(c => c.container === 'amnezia-xray');
-      const api    = srv.api_config || {};
-      const sub    = api.subscription || {};
-      const host   = srv.hostName || '';
-      const port   = xc.xray?.port || '';
-
-      let xrayCfg = null;
-      try { xrayCfg = JSON.parse(xc.xray.last_config); } catch(e) {}
-
-      const uri    = xrayCfg ? buildVlessUri(xrayCfg, srv) : null;
-      const params = xrayCfg ? extractParams(xrayCfg) : null;
-
-      const endDate = sub.end_date
-        ? new Date(sub.end_date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
-        : null;
-
-      const countries = (api.available_countries || []).map(c => c.server_country_name);
-
-      html += '<div class="server-card">';
-      html += '<div class="server-name">' + esc(srv.name || srv.description || 'Сервер') + '</div>';
-
-      html += '<div class="tag-row">';
-      if (api.service_type)     html += '<span class="tag">'      + esc(api.service_type) + '</span>';
-      if (api.service_protocol) html += '<span class="tag ok">'   + esc(api.service_protocol.toUpperCase()) + '</span>';
-      if (api.server_country_name) html += '<span class="tag info">' + flag(api.server_country_code) + ' ' + esc(api.server_country_name) + '</span>';
-      html += '</div>';
-
-      html += '<div class="info-grid">';
-      html += '<span class="k">Хост</span><span class="v">' + esc(host) + (port ? ':' + esc(String(port)) : '') + '</span>';
-      if (api.stack_type) html += '<span class="k">Stack</span><span class="v">' + esc(api.stack_type) + '</span>';
-      if (endDate) html += '<span class="k">Подписка до</span><span class="v ok">' + endDate + '</span>';
-      html += '</div>';
-
-      if (uri) {
-        const uid = 'uri_' + slugify(host);
-        html += '<div class="divider"></div>';
-        html += '<div class="section-label">VLESS</div>';
-        html += '<div class="proxy-box" id="' + uid + '">' + esc(uri) + '</div>';
-        html += '<div class="btn-row">';
-        html += '<button class="btn" onclick="copyById(this, \'' + uid + '\', \'Копировать VLESS URI\')">Копировать VLESS</button>';
-        html += '<button class="btn" onclick="download(\'' + slugify(host) + '.txt\', document.getElementById(\'' + uid + '\').textContent)">Текстовик</button>';
-        html += '</div>';
-
-        if (params) {
-          html += '<div class="divider"></div>';
-          html += '<div class="section-label">Параметры подключения</div>';
-          html += '<div class="info-grid">';
-          if (params.uuid)     html += '<span class="k">UUID</span><span class="v">'        + esc(params.uuid)     + '</span>';
-          if (params.address)  html += '<span class="k">Адрес</span><span class="v">'       + esc(params.address)  + ':' + esc(String(params.port)) + '</span>';
-          if (params.flow)     html += '<span class="k">Flow</span><span class="v">'        + esc(params.flow)     + '</span>';
-          if (params.network)  html += '<span class="k">Network</span><span class="v">'     + esc(params.network)  + '</span>';
-          if (params.security) html += '<span class="k">Security</span><span class="v">'    + esc(params.security) + '</span>';
-          if (params.sni)      html += '<span class="k">SNI</span><span class="v">'         + esc(params.sni)      + '</span>';
-          if (params.pbk)      html += '<span class="k">Public key</span><span class="v">'  + esc(params.pbk)      + '</span>';
-          if (params.fp)       html += '<span class="k">Fingerprint</span><span class="v">' + esc(params.fp)       + '</span>';
-          if (params.shortId)  html += '<span class="k">Short ID</span><span class="v">'    + esc(params.shortId)  + '</span>';
-          html += '</div>';
+  }
+  
+  // Дедупликация одинаковых локаций в подписке (даже если они из разных файлов)
+  for(const g of out){
+    if(g.type==='sub'){
+      const locMap=new Map();
+      for(const s of g.srvList){
+        const sApi=s.api_config||{};
+        const cName=sApi.server_country_name?stripEmoji(sApi.server_country_name):(s.name||s.description||s.hostName||'Unknown');
+        if(!locMap.has(cName)){
+          const ms=Object.assign({},s);
+          ms.containers=[...(s.containers||[])];
+          ms.__files=new Set([s.__file]);
+          locMap.set(cName,ms);
+        }else{
+          const ex=locMap.get(cName);
+          if(s.__file) ex.__files.add(s.__file);
+          const ep=new Set(ex.containers.map(c=>c.container));
+          for(const c of(s.containers||[])){
+            if(!ep.has(c.container)){ex.containers.push(c);ep.add(c.container);}
+          }
         }
-      } else {
-        html += '<div class="error-box" style="display:block;margin-top:.75rem">Не удалось разобрать last_config для построения URI</div>';
       }
-
-      if (api.vpn_key) {
-        const kid = 'vpnkey_' + slugify(host);
-        html += '<div class="divider"></div>';
-        html += '<div class="section-label">Подписка</div>';
-        html += '<div class="vpnkey-box" id="' + kid + '">' + esc(api.vpn_key) + '</div>';
-        html += '<div class="btn-row"><button class="btn" onclick="copyById(this, \'' + kid + '\', \'Копировать подписку\')">Копировать подписку</button></div>';
-      }
-
-      if (countries.length) {
-        html += '<div class="divider"></div>';
-        html += '<div class="section-label">Доступные сервера в подписке (' + countries.length + ')</div>';
-        html += '<div class="countries-grid">';
-        for (const c of countries) html += '<span class="country">' + esc(c) + '</span>';
-        html += '</div>';
-      }
-
-      html += '</div>';
-    }
-
-    resEl.innerHTML = html;
-    resEl.style.display = 'block';
-  }
-
-  function buildVlessUri(cfg, srv) {
-    try {
-      const out  = cfg.outbounds.find(o => o.protocol === 'vless');
-      if (!out) return null;
-      const vnext = out.settings.vnext[0];
-      const user  = vnext.users[0];
-      const ss    = out.streamSettings || {};
-      const rs    = ss.realitySettings || {};
-
-      const p = new URLSearchParams();
-      if (ss.network)      p.set('type', ss.network);
-      if (ss.security)     p.set('security', ss.security);
-      if (rs.serverName)   p.set('sni', rs.serverName);
-      if (rs.publicKey)    p.set('pbk', rs.publicKey);
-      if (rs.fingerprint)  p.set('fp',  rs.fingerprint);
-      if (rs.shortId)      p.set('sid', rs.shortId);
-      if (rs.spiderX)      p.set('spx', rs.spiderX);
-      if (user.flow)       p.set('flow', user.flow);
-
-      const tag = encodeURIComponent(srv.name || srv.description || vnext.address);
-      return 'vless://' + user.id + '@' + vnext.address + ':' + vnext.port + '?' + p.toString() + '#' + tag;
-    } catch(e) {
-      return null;
+      g.srvList=Array.from(locMap.values());
     }
   }
+  return out;
+}
 
-  function extractParams(cfg) {
-    try {
-      const out   = cfg.outbounds.find(o => o.protocol === 'vless');
-      if (!out) return null;
-      const vnext = out.settings.vnext[0];
-      const user  = vnext.users[0];
-      const ss    = out.streamSettings || {};
-      const rs    = ss.realitySettings || {};
-      return {
-        uuid:     user.id,
-        address:  vnext.address,
-        port:     vnext.port,
-        flow:     user.flow,
-        network:  ss.network,
-        security: ss.security,
-        sni:      rs.serverName,
-        pbk:      rs.publicKey,
-        fp:       rs.fingerprint,
-        shortId:  rs.shortId,
-      };
-    } catch(e) {
-      return null;
+function renderCard(srv,multiFile){
+  const api=srv.api_config||{},sub=api.subscription||{},isSub=!!api.vpn_key,host=srv.hostName||'';
+  const endDate=sub.end_date?fmtDate(sub.end_date):null;
+  const name=srv.name||srv.description||host||'Сервер';
+
+  let h='<div class="server-card">';
+  h+=`<div class="card-top"><div class="srv-name">${esc(name)}</div>${multiFile?`<span class="src-badge">${esc(trimFn(srv.__file||''))}</span>`:''}</div>`;
+  h+='<div class="tag-row">';
+  if(api.server_country_name)h+=`<span class="tag a">${flag(api.server_country_code)} ${esc(stripEmoji(api.server_country_name))}</span>`;
+  if(!isSub&&api.service_type)h+=`<span class="tag">${esc(api.service_type)}</span>`;
+  h+='</div>';
+  
+  h+='<div class="card-scroll-area">';
+  h+='<div class="igrid">';
+  if(host)h+=`<span class="k">Хост</span><span class="v">${esc(host)}</span>`;
+  if(endDate)h+=`<span class="k">Подписка до</span><span class="v ok">${endDate}</span>`;
+  h+='</div>';
+  h+=renderContTabs(srv,isSub);
+  h+='</div>';
+  
+  h+=renderSubFooter(api);
+  h+='</div>';
+  return h;
+}
+
+function renderMergedCard(g,multiFile){
+  const ref=g.srvList[0],api=ref.api_config||{},sub=api.subscription||{};
+  const endDate=sub.end_date?fmtDate(sub.end_date):null;
+
+  let h='<div class="server-card">';
+  h+=`<div class="card-top"><div class="srv-name">Подписка · ${g.srvList.length} локаций</div><span class="src-badge">${g.srvList.length} серв.</span></div>`;
+  
+  h+='<div class="card-scroll-area">';
+  if(endDate)h+=`<div class="igrid" style="margin-bottom:0"><span class="k">Подписка до</span><span class="v ok">${endDate}</span></div>`;
+  h+='<div class="div"></div><div class="srv-tabs">';
+
+  g.srvList.forEach((srv,i)=>{
+    const sApi = srv.api_config || {};
+    const cName = sApi.server_country_name ? stripEmoji(sApi.server_country_name) : (srv.name||srv.description||srv.hostName||`#${i+1}`);
+    const f = flag(sApi.server_country_code);
+    const lbl = (f ? f + ' ' : '') + cName;
+    const displayLbl = lbl.length>26 ? lbl.slice(0,25)+'…' : lbl;
+
+    const pid=uid();
+    srv.__mtid=pid;
+    h+=`<button class="srv-tab${i===0?' act':''}" onclick="switchSrvTab(this,'${pid}')">${esc(displayLbl)}</button>`;
+  });
+  h+='</div>';
+
+  g.srvList.forEach((srv,i)=>{
+    h+=`<div class="srv-panel${i===0?' act':''}" id="${srv.__mtid}">`;
+    if(multiFile){
+      const fnames=Array.from(srv.__files||[srv.__file]).map(f=>esc(trimFn(f||''))).join(', ');
+      h+=`<div style="margin-bottom:.5rem"><span class="src-badge">${fnames}</span></div>`;
     }
-  }
+    h+=renderContTabs(srv,true);
+    h+='</div>';
+  });
+  h+='</div>';
 
-  function copyById(btn, id, label) {
-    const text = document.getElementById(id)?.textContent || '';
-    navigator.clipboard.writeText(text).then(() => {
-      btn.textContent = 'Скопировано!';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = label; btn.classList.remove('copied'); }, 2000);
-    });
-  }
+  h+=renderSubFooter(api);
+  h+='</div>';
+  return h;
+}
 
-  function download(filename, text) {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
-    a.download = filename;
-    a.click();
-  }
+function renderContTabs(srv,isSub){
+  const containers=(srv.containers||[]).filter(c=>CORD.includes(c.container)).sort((a,b)=>CORD.indexOf(a.container)-CORD.indexOf(b.container));
+  if(!containers.length)return '';
+  let h='<div class="div"></div><div class="pt-tabs">';
+  containers.forEach((c,i)=>{
+    const pid=uid();c.__pid=pid;
+    h+=`<button class="pt-tab${i===0?' act':''}" onclick="switchPtTab(this,'${pid}')">${CLABEL[c.container]||c.container}</button>`;
+  });
+  h+='</div>';
+  containers.forEach((c,i)=>{
+    h+=`<div class="pt-panel${i===0?' act':''}" id="${c.__pid}">${renderContainer(srv,c,isSub)}</div>`;
+  });
+  return h;
+}
 
-  function esc(s) {
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
+function renderSubFooter(api){
+  if(!api.vpn_key) return '';
+  const safe=api.vpn_key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  return `<div class="sub-footer-wrap">
+    <div class="div"></div><div class="sublabel">Ключ подписки</div>
+    <div class="kv-chip"><span class="kv-chip-t">${esc(api.vpn_key.slice(0,38)+(api.vpn_key.length>38?'…':''))}</span>
+      <button class="eye-btn" title="Показать" onclick="showCfgModal('Ключ подписки','${safe}')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <button class="eye-btn" title="Копировать" onclick="copyStr('${safe}','Ключ подписки')"><svg viewBox="0 0 16 16" style="fill:currentColor;stroke:none"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5H3.5A1.5 1.5 0 0 0 2 3h12a1.5 1.5 0 0 0-1.5-1.5H11A1.5 1.5 0 0 0 9.5 0h-3z"/></svg></button>
+    </div>
+  </div>`;
+}
 
-  function flag(code) {
-    if (!code) return '';
-    return [...code.toLowerCase()].map(c => String.fromCodePoint(127397 + c.charCodeAt(0))).join('');
+function renderContainer(srv,c,isSub){
+  switch(c.container){
+    case 'amnezia-xray':          return renderXray(srv,c,isSub);
+    case 'amnezia-awg':case 'amnezia-awg2': return renderAwg(srv,c);
+    case 'amnezia-wireguard':     return renderWg(srv,c);
+    case 'amnezia-openvpn':       return renderOvpn(srv,c);
+    case 'amnezia-openvpn-cloak': return renderCloak(srv,c);
+    case 'amnezia-shadowsocks':   return renderSS(srv,c);
+    case 'amnezia-socks5proxy':   return renderSocks5(srv,c);
+    case 'amnezia-ipsec':         return renderIpsec(srv,c);
+    default: return '<div class="warn-block">Неизвестный контейнер</div>';
   }
+}
 
-  function slugify(s) {
-    return String(s).replace(/[^a-z0-9]/gi, '_');
+function eyeBtn(title,safe){
+  return `<button class="eye-btn" title="${title}" onclick="showCfgModal('${title}','${safe}')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>`;
+}
+
+function renderXray(srv,c,isSub){
+  let cfg=null;try{cfg=JSON.parse((c.xray||{}).last_config);}catch(e){}
+  const uri=cfg?buildVlessUri(cfg,srv,isSub):null;
+  const par=cfg?extractVlessParams(cfg):null;
+  if(!uri)return'<div class="warn-block">Нет last_config для VLESS URI</div>';
+  const safe=uri.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  let h=`<div class="act-row">
+    <button class="btn" onclick="copyStr('${safe}','VLESS URI')">Копировать URI</button>
+    ${eyeBtn('VLESS URI',safe)}
+    <button class="btn" onclick="dlStr('vless.txt','${safe}')">Скачать .txt</button>
+  </div>`;
+  if(par){
+    h+='<div class="sublabel">Параметры</div><div class="igrid">';
+    if(par.uuid)h+=`<span class="k">UUID</span><span class="v">${esc(par.uuid)}</span>`;
+    if(par.address)h+=`<span class="k">Адрес</span><span class="v">${esc(par.address)}:${esc(String(par.port))}</span>`;
+    if(par.network)h+=`<span class="k">Network</span><span class="v">${esc(par.network)}</span>`;
+    if(par.security)h+=`<span class="k">Security</span><span class="v">${esc(par.security)}</span>`;
+    if(par.sni)h+=`<span class="k">SNI</span><span class="v">${esc(par.sni)}</span>`;
+    if(par.pbk)h+=`<span class="k">PublicKey</span><span class="v">${esc(par.pbk)}</span>`;
+    if(par.fp)h+=`<span class="k">Fingerprint</span><span class="v">${esc(par.fp)}</span>`;
+    if(par.shortId)h+=`<span class="k">ShortID</span><span class="v">${esc(par.shortId)}</span>`;
+    if(par.flow)h+=`<span class="k">Flow</span><span class="v">${esc(par.flow)}</span>`;
+    h+='</div>';
   }
+  return h;
+}
+
+function buildVlessUri(cfg,srv,isSub){
+  try{
+    const out=cfg.outbounds.find(o=>o.protocol==='vless');if(!out)return null;
+    const vn=out.settings.vnext[0],u=vn.users[0],ss=out.streamSettings||{},rs=ss.realitySettings||{};
+    const p=new URLSearchParams();
+    if(ss.network)p.set('type',ss.network);if(ss.security)p.set('security',ss.security);
+    if(rs.serverName)p.set('sni',rs.serverName);if(rs.publicKey)p.set('pbk',rs.publicKey);
+    if(rs.fingerprint)p.set('fp',rs.fingerprint);if(rs.shortId)p.set('sid',rs.shortId);
+    if(rs.spiderX)p.set('spx',rs.spiderX);if(u.flow)p.set('flow',u.flow);
+    const api=srv.api_config||{};
+    const tag=isSub&&api.server_country_code?flag(api.server_country_code)+' '+stripEmoji(api.server_country_name||''):srv.name||srv.description||vn.address;
+    return'vless://'+u.id+'@'+vn.address+':'+vn.port+'?'+p.toString()+'#'+encodeURIComponent(tag);
+  }catch(e){return null;}
+}
+
+function extractVlessParams(cfg){
+  try{
+    const out=cfg.outbounds.find(o=>o.protocol==='vless');
+    const vn=out.settings.vnext[0],u=vn.users[0],ss=out.streamSettings||{},rs=ss.realitySettings||{};
+    return{uuid:u.id,address:vn.address,port:vn.port,flow:u.flow,network:ss.network,security:ss.security,sni:rs.serverName,pbk:rs.publicKey,fp:rs.fingerprint,shortId:rs.shortId};
+  }catch(e){return null;}
+}
+
+function renderAwg(srv,c){
+  const d=c.awg||{};let cfg=null;try{cfg=JSON.parse(d.last_config);}catch(e){}
+  if(!cfg)return'<div class="warn-block">Нет конфигурации AWG</div>';
+  const co=srv.__conf||{};
+  const txt=(cfg.config||'').replace(/\$PRIMARY_DNS/g,co.primaryDns||'1.1.1.1').replace(/\$SECONDARY_DNS/g,co.secondaryDns||'1.0.0.1');
+  const safe=encCfg(txt);
+  let h=`<div class="act-row">
+    <button class="btn" onclick="copyStr('${safe}','AWG конфиг')">Копировать конфиг</button>
+    ${eyeBtn('AmneziaWG конфиг',safe)}
+    <button class="btn" onclick="dlStr('amneziawg.conf','${safe}')">Скачать .conf</button>
+  </div>`;
+  const ks=['Jc','Jmin','Jmax','S1','S2','S3','S4','H1','H2','H3','H4','I1','I2','I3','I4','I5'];
+  const pr=ks.filter(k=>cfg[k]!==undefined);
+  if(pr.length){
+    h+='<div class="sublabel">AWG параметры</div><div class="igrid">';
+    for(const k of pr)h+=`<span class="k">${k}</span><span class="v">${esc(String(cfg[k]))}</span>`;
+    if(cfg.port)h+=`<span class="k">Порт</span><span class="v">${esc(String(cfg.port))}</span>`;
+    if(cfg.server_pub_key)h+=`<span class="k">Server PubKey</span><span class="v">${esc(cfg.server_pub_key)}</span>`;
+    h+='</div>';
+  }
+  return h;
+}
+
+function renderWg(srv,c){
+  const d=c.wireguard||{};let cfg=null;try{cfg=JSON.parse(d.last_config);}catch(e){}
+  if(!cfg)return'<div class="warn-block">Нет конфигурации WireGuard</div>';
+  const co=srv.__conf||{};
+  const txt=(cfg.config||'').replace(/\$PRIMARY_DNS/g,co.primaryDns||'1.1.1.1').replace(/\$SECONDARY_DNS/g,co.secondaryDns||'1.0.0.1');
+  const safe=encCfg(txt);
+  let h=`<div class="act-row">
+    <button class="btn" onclick="copyStr('${safe}','WireGuard конфиг')">Копировать конфиг</button>
+    ${eyeBtn('WireGuard конфиг',safe)}
+    <button class="btn" onclick="dlStr('wireguard.conf','${safe}')">Скачать .conf</button>
+  </div><div class="igrid">`;
+  if(cfg.port)h+=`<span class="k">Порт</span><span class="v">${esc(String(cfg.port))}</span>`;
+  if(cfg.mtu)h+=`<span class="k">MTU</span><span class="v">${esc(String(cfg.mtu))}</span>`;
+  if(cfg.persistent_keep_alive)h+=`<span class="k">Keepalive</span><span class="v">${esc(String(cfg.persistent_keep_alive))}s</span>`;
+  if(cfg.server_pub_key)h+=`<span class="k">Server PubKey</span><span class="v">${esc(cfg.server_pub_key)}</span>`;
+  h+='</div>';
+  return h;
+}
+
+function renderOvpn(srv,c){
+  const d=c.openvpn||{};let cfg=null;try{cfg=JSON.parse(d.last_config);}catch(e){}
+  if(!cfg||!cfg.config)return'<div class="warn-block">Нет конфигурации OpenVPN</div>';
+  const co=srv.__conf||{};
+  const txt=cfg.config.replace(/\$PRIMARY_DNS/g,co.primaryDns||'1.1.1.1').replace(/\$SECONDARY_DNS/g,co.secondaryDns||'1.0.0.1');
+  const safe=encCfg(txt);
+  return`<div class="act-row">
+    <button class="btn" onclick="copyStr('${safe}','OpenVPN конфиг')">Копировать конфиг</button>
+    ${eyeBtn('OpenVPN конфиг',safe)}
+    <button class="btn" onclick="dlStr('client.ovpn','${safe}')">Скачать .ovpn</button>
+  </div>`;
+}
+
+function renderCloak(srv,c){
+  const co=srv.__conf||{};let h='';
+  const ovd=c.openvpn||{};let ovCfg=null;try{ovCfg=JSON.parse(ovd.last_config);}catch(e){}
+  if(ovCfg&&ovCfg.config){
+    const txt=ovCfg.config.replace(/\$PRIMARY_DNS/g,co.primaryDns||'1.1.1.1').replace(/\$SECONDARY_DNS/g,co.secondaryDns||'1.0.0.1');
+    const safe=encCfg(txt);
+    h+=`<div class="sublabel" style="margin-top:0">OpenVPN конфиг</div><div class="act-row">
+      <button class="btn" onclick="copyStr('${safe}','OpenVPN конфиг')">Копировать .ovpn</button>
+      ${eyeBtn('OpenVPN конфиг',safe)}
+      <button class="btn" onclick="dlStr('client.ovpn','${safe}')">Скачать .ovpn</button>
+    </div>`;
+  }
+  const ckd=c.cloak||{};let ckCfg=null;try{ckCfg=JSON.parse(ckd.last_config);}catch(e){}
+  if(ckCfg){
+    h+='<div class="sublabel">Cloak параметры</div><div class="igrid">';
+    for(const[k,l]of[['ServerName','SNI'],['PublicKey','PublicKey'],['Transport','Transport'],['EncryptionMethod','Шифрование'],['RemoteHost','RemoteHost'],['RemotePort','RemotePort']])
+      if(ckCfg[k])h+=`<span class="k">${l}</span><span class="v">${esc(String(ckCfg[k]))}</span>`;
+    h+='</div>';
+  }
+  const ssd=c.shadowsocks||{};let ssCfg=null;try{ssCfg=JSON.parse(ssd.last_config);}catch(e){}
+  if(ssCfg&&ssCfg.method&&ssCfg.password&&ssCfg.server){
+    const ssUri=`ss://${btoa(ssCfg.method+':'+ssCfg.password)}@${ssCfg.server}:${ssCfg.server_port}`;
+    const safe=ssUri.replace(/'/g,"\\'");
+    h+=`<div class="sublabel">ShadowSocks транспорт</div><div class="act-row">
+      <button class="btn" onclick="copyStr('${safe}','SS URI')">Копировать SS URI</button>
+      ${eyeBtn('ShadowSocks URI',safe)}
+    </div><div class="igrid">
+      <span class="k">Метод</span><span class="v">${esc(ssCfg.method)}</span>
+      <span class="k">Сервер</span><span class="v">${esc(ssCfg.server)}:${esc(String(ssCfg.server_port||''))}</span>
+    </div>`;
+  }
+  return h||'<div class="warn-block">Нет данных OpenVPN+Cloak</div>';
+}
+
+function renderSS(srv,c){
+  const ss=c.shadowsocks||{};
+  let h='<div class="igrid">';
+  if(srv.hostName)h+=`<span class="k">Хост</span><span class="v">${esc(srv.hostName)}</span>`;
+  if(ss.port)h+=`<span class="k">Порт</span><span class="v">${esc(String(ss.port))}</span>`;
+  if(ss.transport_proto)h+=`<span class="k">Протокол</span><span class="v">${esc(ss.transport_proto)}</span>`;
+  h+='</div><div class="info-block">Метод и пароль не хранятся в бэкапе. Шаблон: <code>ss://METHOD:PASS@'+esc(srv.hostName||'HOST')+':'+(ss.port||'PORT')+'</code></div>';
+  return h;
+}
+
+function renderSocks5(srv,c){
+  const sp=c.socks5proxy||{},host=srv.hostName||'',port=sp.port||'',user=sp.userName||'',pass=sp.password||'';
+  let h='';
+  if(host&&port){
+    const uri=`socks5://${encodeURIComponent(user)}:${encodeURIComponent(pass)}@${host}:${port}`;
+    const safe=uri.replace(/'/g,"\\'");
+    h+=`<div class="act-row">
+      <button class="btn" onclick="copyStr('${safe}','SOCKS5 URI')">Копировать URI</button>
+      ${eyeBtn('SOCKS5 URI',safe)}
+    </div>`;
+  }
+  h+='<div class="igrid">';
+  if(host)h+=`<span class="k">Хост</span><span class="v">${esc(host)}</span>`;
+  if(port)h+=`<span class="k">Порт</span><span class="v">${esc(String(port))}</span>`;
+  if(user)h+=`<span class="k">Логин</span><span class="v">${esc(user)}</span>`;
+  if(pass)h+=`<span class="k">Пароль</span><span class="v blur" onclick="this.classList.toggle('show-pwd')" title="Нажмите, чтобы показать/скрыть">${esc(pass)}</span>`;
+  h+='</div>';
+  return h;
+}
+
+function renderIpsec(srv,c){
+  const ik=c.ikev2||{};
+  let h='<div class="igrid">';
+  if(srv.hostName)h+=`<span class="k">Хост</span><span class="v">${esc(srv.hostName)}</span>`;
+  if(ik.port&&ik.port!==0)h+=`<span class="k">Порт</span><span class="v">${esc(String(ik.port))}</span>`;
+  if(ik.subnet_address)h+=`<span class="k">Подсеть</span><span class="v">${esc(ik.subnet_address)}</span>`;
+  if(ik.transport_proto)h+=`<span class="k">Протокол</span><span class="v">${esc(ik.transport_proto)}</span>`;
+  h+='</div><div class="warn-block">Учётные данные генерируются на сервере. SSH: <code>docker exec amnezia-ipsec cat /opt/amnezia/ipsec/ipsec.conf</code></div>';
+  return h;
+}
+
+function exportAllVless(){
+  const uris=[];
+  for(const srv of allServers)
+    for(const c of(srv.containers||[]))
+      if(c.container==='amnezia-xray'){
+        let cfg=null;try{cfg=JSON.parse((c.xray||{}).last_config);}catch(e){}
+        if(cfg){const uri=buildVlessUri(cfg,srv,!!(srv.api_config||{}).vpn_key);if(uri)uris.push(uri);}
+      }
+  if(!uris.length){showToast('Нет VLESS для экспорта','err');return;}
+  download('all_vless.txt',uris.join('\n'));
+  showToast('Экспортировано '+uris.length+' VLESS URI');
+}
+
+function showRoutingModal(idx){
+  const fc=loadedConfs[idx],cf=fc.conf;
+  const isAndroid=cf.platform==='android';
+  const exceptApps=Array.isArray(cf.exceptApps)?cf.exceptApps:[];
+  const forwardApps=Array.isArray(cf.forwardApps)?cf.forwardApps:[];
+  const exceptSites=Object.keys(cf.exceptSites||{});
+  const forwardSites=Object.keys(cf.forwardSites||{});
+
+  const fmtApp=a=>{
+    const name=a.appName||a.packageName||'?';
+    const pkg=a.packageName?` (${a.packageName})`:'';
+    const path=(!isAndroid&&a.appPath)?` | ${a.appPath}`:'';
+    return name+pkg+path;
+  };
+
+  const ta=(arr,fn)=>!arr||!arr.length
+    ?'<div class="empty-hint">Нет записей</div>'
+    :`<textarea class="r-list" readonly>${esc(arr.map(x=>fn?fn(x):x).join('\n'))}</textarea>`;
+
+  const bv=v=>(v==='true'||v===true)?'<b style="color:var(--ok)">Вкл</b>':'<span style="color:var(--text-3)">Выкл</span>';
+
+  const ap=uid(),st=uid();
+  const body=`
+    <div class="r-summary">
+      <span class="k">Платформа</span><span class="v">${esc(cf.platform||'?')}</span>
+      <span class="k">Режим трафика</span><span class="v">${esc(RMODES[String(cf.routeMode)]||String(cf.routeMode||'?'))}</span>
+      <span class="k">Режим приложений</span><span class="v">${esc(AMODES[String(cf.appsRouteMode)]||String(cf.appsRouteMode||'?'))}</span>
+      <span class="k">Правила для приложений</span><span class="v">${bv(cf.appsSplit)}</span>
+      <span class="k">Правила для сайтов</span><span class="v">${bv(cf.sitesSplit)}</span>
+      <span class="k">Kill Switch</span><span class="v">${bv(cf.killSwitch)}</span>
+      <span class="k">Amnezia DNS</span><span class="v">${bv(cf.useAmneziaDns)}</span>
+      <span class="k">Авто-подключение</span><span class="v">${bv(cf.autoConnect)}</span>
+      <span class="k">DNS</span><span class="v">${esc(cf.primaryDns||'–')} / ${esc(cf.secondaryDns||'–')}</span>
+    </div>
+    <div class="r-tabs">
+      <button class="r-tab act" onclick="switchRTab(this,'rt-a-${ap}')">Приложения</button>
+      <button class="r-tab" onclick="switchRTab(this,'rt-s-${st}')">Сайты / IP</button>
+    </div>
+    <div class="r-panel act" id="rt-a-${ap}">
+      <div class="r-cols">
+        <div><div class="sublabel" style="margin-top:0">Исключить из VPN (${exceptApps.length})</div>${ta(exceptApps,fmtApp)}</div>
+        <div><div class="sublabel" style="margin-top:0">Пустить через VPN (${forwardApps.length})</div>${ta(forwardApps,fmtApp)}</div>
+      </div>
+    </div>
+    <div class="r-panel" id="rt-s-${st}">
+      <div class="r-cols">
+        <div><div class="sublabel" style="margin-top:0">Исключить (${exceptSites.length})</div>${ta(exceptSites)}</div>
+        <div><div class="sublabel" style="margin-top:0">Пустить через VPN (${forwardSites.length})</div>${ta(forwardSites)}</div>
+      </div>
+    </div>`;
+  openModal('Маршрутизация · '+esc(fc.filename),body);
+}
+
+function showInfoModal(){
+  const commHtml = COMMUNITY_LINKS.map(l => `<li><a href="${l}" target="_blank" rel="noopener">${esc(l.replace(/^https?:\/\//, ''))}</a></li>`).join('');
+
+  const body=`
+    <p><strong>AmneziaVPN Backup Viewer</strong> — просмотр и экспорт конфигураций протоколов из <code>.backup</code> файлов AmneziaVPN.</p>
+    <p><strong>🔮 Поддерживаются протоколы:</strong> VLESS, AmneziaWG, AmneziaWG v2, WireGuard, OpenVPN, OpenVPN+Cloak, ShadowSocks, SOCKS5, IKEv2.</p>
+    <p><strong>⚙️ Возможности:</strong></p>
+    <ul>
+      <li>Отлично извлекает данные из подписки AmneziaVPN Premium. <a href="https://github.com/tunmerreclop/AmneziaVPN-Backup-Viewer/blob/main/README.md#:~:text=%D0%94%D0%BB%D1%8F%20AmneziaVPN%20Premium" target="_blank" rel="noopener">Подробнее про получение VLESS в README проекта.</a></li>
+      <li>Чтение нескольких <code>.backup</code> файлов с автоматической дедупликацией серверов</li>
+      <li>Экспорт всех VLESS URI одной кнопкой в <code>all_vless.txt</code></li>
+      <li>Маршруты - кликните на файл для просмотра раздельного туннелирования, маршрутов, сайтов и DNS</li>
+    </ul>
+    <p><strong>🔐 Приватность:</strong> 100% локально в браузере, данные никуда не отправляются!</p>
+    <p>Проверено на <strong>AmneziaVPN 4.8.14.5</strong>.</p>
+    
+    <div style="height:1px;background:var(--bd);margin:.75rem 0"></div>
+    <p><strong>Сообщество:</strong></p>
+    <ul>${commHtml}</ul>
+    <div style="height:1px;background:var(--bd);margin:.75rem 0"></div>
+    
+    <p style="font-size:12px;color:var(--text-3)">
+      <a href="https://github.com/tunmerreclop/AmneziaVPN-Backup-Viewer" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;·&nbsp;<a href="https://github.com/tunmerreclop/AmneziaVPN-Backup-Viewer/blob/main/LICENSE" target="_blank" rel="noopener">GPL-3.0</a>
+      &nbsp;·&nbsp;Создано с ❤️ командой TunmerReclop для проекта VIDEO PLAYER NOW
+    </p>`;
+  openModal('О приложении',body);
+}
+
+function showCfgModal(title,safeText){
+  const text=safeText.replace(/\\n/g,'\n');
+  const sa=safeText.replace(/'/g,"\\'");
+  const body=`<textarea class="cfg-area" readonly>${esc(text)}</textarea>
+    <div class="act-row" style="margin-top:.65rem">
+      <button class="btn pr" onclick="copyStr('${sa}','${esc(title)}')">Копировать</button>
+    </div>`;
+  openModal(title,body);
+}
+
+function openModal(title,body){
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-bd').innerHTML=body;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+function switchPtTab(btn,pid){
+  const scope=btn.closest('.srv-panel,.server-card');
+  scope.querySelectorAll('.pt-tab').forEach(b=>b.classList.remove('act'));
+  scope.querySelectorAll('.pt-panel').forEach(p=>p.classList.remove('act'));
+  btn.classList.add('act');
+  document.getElementById(pid).classList.add('act');
+}
+function switchSrvTab(btn,pid){
+  const card=btn.closest('.server-card');
+  card.querySelectorAll('.srv-tab').forEach(b=>b.classList.remove('act'));
+  card.querySelectorAll('.srv-panel').forEach(p=>p.classList.remove('act'));
+  btn.classList.add('act');
+  document.getElementById(pid).classList.add('act');
+}
+function switchRTab(btn,pid){
+  const box=btn.closest('.modal-bd');
+  box.querySelectorAll('.r-tab').forEach(b=>b.classList.remove('act'));
+  box.querySelectorAll('.r-panel').forEach(p=>p.classList.remove('act'));
+  btn.classList.add('act');
+  document.getElementById(pid).classList.add('act');
+}
+
+function showErr(msg){errEl.textContent=msg;errEl.style.display='block';}
+
+function copyStr(safe,label){
+  const text=safe.replace(/\\n/g,'\n');
+  if(navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(()=>showToast(label+' скопирован')).catch(()=>fallbackCopy(text,label));
+  } else {
+    fallbackCopy(text,label);
+  }
+}
+function fallbackCopy(text,label){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showToast(label+' скопирован');
+  } catch(e) {
+    showToast('Ошибка копирования', 'err');
+  }
+  document.body.removeChild(ta);
+}
+
+function dlStr(filename,safe){
+  const text=safe.replace(/\\n/g,'\n');
+  download(filename,text);
+}
+function download(filename,text){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type:'application/octet-stream'}));
+  a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function showToast(msg,type=''){
+  const wrap=document.getElementById('toasts');
+  const el=document.createElement('div');
+  el.className='toast'+(type?' '+type+'-t':'');
+  el.textContent=msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('show')));
+  setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),300);},2200);
+}
+
+window.addEventListener('scroll', ()=>{
+  const b=document.getElementById('btt');
+  if(window.scrollY>250) b.classList.add('show');
+  else b.classList.remove('show');
+});
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function encCfg(txt){return txt.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n');}
+
+function flag(code){
+  if(!code||code.length<2)return'';
+  try{return[...code.slice(0,2).toUpperCase()].map(c=>String.fromCodePoint(127397+c.charCodeAt(0))).join('');}
+  catch(e){return'';}
+}
+
+function stripEmoji(str){if(!str)return'';return str.replace(/^[^\p{L}\p{N}\[\(]+/gu,'').trim();}
+
+function fmtDate(s){return new Date(s).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});}
+
+function trimFn(s){return s.replace(/\.backup$/i,'').slice(-14);}
 </script>
 </body>
 </html>
